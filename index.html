@@ -234,10 +234,18 @@ function png(cb){
 }
 $('ed').addEventListener('input',draw);$('fs').addEventListener('input',draw);
 $('ex').onchange=e=>{if(EX[e.target.value]){$('ed').value=EX[e.target.value];draw()}e.target.selectedIndex=0};
-$('bp').onclick=()=>png(b=>dl(b,'estema.png'));
-$('bs').onclick=()=>dl(new Blob([SVG],{type:'image/svg+xml'}),'estema.svg');
+$('bp').onclick=()=>png(b=>saveAs(b,'estema.png','Imagem PNG','image/png','.png'));
+$('bs').onclick=()=>saveAs(new Blob([SVG],{type:'image/svg+xml'}),'estema.svg','Imagem SVG','image/svg+xml','.svg');
 $('bc').onclick=()=>png(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})])}catch(e){alert('Seu navegador não permitiu copiar; use "Baixar PNG".')}});
-$('bt').onclick=()=>dl(new Blob([$('ed').value],{type:'text/plain'}),'estema.txt');
+async function saveAs(blob,name,desc,mime,ext){
+ if(window.showSaveFilePicker){
+  try{const h=await showSaveFilePicker({suggestedName:name,types:[{description:desc,accept:{[mime]:[ext]}}]});const w=await h.createWritable();await w.write(blob);await w.close();return}
+  catch(e){if(e.name=='AbortError')return}
+ }
+ const n=prompt('Nome do arquivo:',name);
+ if(n)dl(blob,n.toLowerCase().endsWith(ext)?n:n+ext);
+}
+$('bt').onclick=()=>saveAs(new Blob([$('ed').value],{type:'text/plain'}),'estema.txt','Texto do estema','text/plain','.txt');
 $('bo').onclick=()=>$('fi').click();
 $('fi').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>{$('ed').value=t;draw()});e.target.value=''};
 try{$('ed').value=localStorage.getItem('estemas')||EX['Tabela']}catch(e){$('ed').value=EX['Tabela']}
