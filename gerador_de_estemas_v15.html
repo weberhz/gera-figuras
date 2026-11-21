@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Gerador de figuras</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--fg:#14161c;--mut:#6b7180;--bd:#e3e5ec;--ac:#4f46e5;--ac2:#eef0ff;--sh:0 1px 2px #1014180d,0 4px 16px #1014180f;--r:12px}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b22;--fg:#eceef4;--mut:#99a0b0;--bd:#2a2e39;--ac:#8087ff;--ac2:#23264a;--sh:0 1px 2px #0006,0 4px 16px #0004}}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--bd)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:16px;letter-spacing:-.01em}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--ac),#a596ff);display:grid;place-items:center}
+.ver{font-weight:500;font-size:11px;color:var(--mut);border:1px solid var(--bd);border-radius:20px;padding:0 7px}
+.tabs{display:flex;gap:2px;padding:3px;background:var(--bg);border:1px solid var(--bd);border-radius:10px}
+.tabs button{border:0;background:none;padding:5px 14px;border-radius:7px;color:var(--mut);font-weight:550}
+.tabs button.on{background:var(--card);color:var(--fg);box-shadow:var(--sh)}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.sep{width:1px;height:22px;background:var(--bd);margin:0 4px}
+.fld{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:13px}
+input[type=number]{width:66px;padding:6px 8px;border:1px solid var(--bd);border-radius:9px;background:var(--card);color:var(--fg);font:inherit}
+.btn{border:1px solid var(--bd);background:var(--card);padding:6px 13px;border-radius:9px;font-weight:550;transition:border-color .15s,color .15s,filter .15s}
+.btn:hover{border-color:var(--ac);color:var(--ac)}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}.btn.p:hover{filter:brightness(1.1);color:#fff}
+.dd{position:relative}
+.ddb::after{content:"";display:inline-block;margin-left:9px;border:4px solid transparent;border-top-color:currentColor;border-bottom:0;vertical-align:middle}
+.ddl{position:absolute;z-index:20;top:calc(100% + 6px);left:0;min-width:100%;max-height:60vh;overflow:auto;margin:0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--bd);border-radius:11px;box-shadow:var(--sh),0 14px 34px #0003}
+.ddl[hidden]{display:none}
+.ddl li{padding:7px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.ddl li:hover{background:var(--ac2)}
+.ddl li.sel{color:var(--ac);font-weight:600}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,40%) 1fr;gap:16px;padding:16px 20px}
+@media(max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+.pane{display:flex;flex-direction:column;min-height:0;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.pane h2{margin:0;padding:10px 16px;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);border-bottom:1px solid var(--bd);font-weight:600}
+textarea{flex:1;width:100%;border:0;resize:none;padding:14px 16px;font:13.5px/1.65 ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:transparent;color:var(--fg);outline:0}
+#pv{flex:1;overflow:auto;padding:24px;display:flex;align-items:flex-start;justify-content:center;background:#fff}
+#pv svg{max-width:100%;height:auto}
+#er:empty{display:none}#er{margin:0 20px 14px;padding:8px 12px;border-radius:9px;background:#fde8e8;color:#b42318;font-size:13px}
+#hw{display:none;flex:1;overflow:auto;padding:16px 20px}
+body.h #hw{display:block}body.h main,body.h #er{display:none}
+#help{max-width:1040px;margin:0 auto;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);padding:6px 28px 26px}
+#help p{color:var(--mut)}#help h3{margin:26px 0 6px;font-size:15px}
+#help table{border-collapse:collapse;width:100%}
+#help td{border-top:1px solid var(--bd);padding:10px 8px;vertical-align:top}#help td:first-child{width:22%}#help td:last-child{width:36%}
+#help pre{margin:0 0 8px;padding:8px 10px;background:var(--bg);border-radius:8px;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+code{background:var(--ac2);color:var(--ac);border-radius:6px;padding:1px 6px;font:12.5px ui-monospace,Menlo,Consolas,monospace}
+dialog{background:var(--card);color:var(--fg);border:0;border-radius:14px;padding:22px;box-shadow:0 20px 60px #0005}
+dialog::backdrop{background:#0007}
+dialog p{margin:0 0 10px;font-weight:600}
+#nmi{width:320px;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--fg);font:inherit}
+dialog .btn{margin-right:6px}
+</style></head><body>
+<header>
+<div class="brand"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M8 2.5v3M8 5.5 3.5 12M8 5.5l4.5 6.5"/></svg></span>Gerador de figuras<small class="ver">v15</small></div>
+<nav class="tabs"><button id="t1" class="on">Editor</button><button id="t2">Como usar</button></nav>
+<div class="tools">
+<div class="dd" id="ex"><button class="btn ddb" type="button">Exemplos</button><ul class="ddl" hidden></ul></div>
+<label class="fld" title="Tamanho que as letras terão no livro impresso">Fonte <input id="pt" type="number" value="11" min="5" max="30" step="0.5"> pt</label>
+<div class="fld">PNG <div class="dd" id="dpi" data-v="600"><button class="btn ddb" type="button">600 dpi</button><ul class="ddl" hidden></ul></div></div>
+<button id="bp" class="btn p">Baixar PNG</button><button id="bs" class="btn">Baixar SVG</button><button id="be" class="btn">Baixar EPS</button><button id="bc" class="btn">Copiar imagem</button>
+<span class="sep"></span>
+<button id="bt" class="btn">Salvar texto</button><button id="bo" class="btn">Abrir texto</button><input id="fi" type="file" accept=".txt" hidden>
+</div>
+</header>
+<main>
+<section class="pane"><h2>Texto</h2><textarea id="ed" spellcheck="false"></textarea></section>
+<section class="pane"><h2>Prévia</h2><div id="pv"></div></section>
+</main>
+<div id="er"></div>
+<div id="hw"><div id="help"></div></div>
+<dialog id="nm"><form method="dialog"><p>Nome do arquivo</p><input id="nmi"><p style="margin:14px 0 0"><button value="ok" class="btn p">Salvar</button><button value="x" class="btn">Cancelar</button></p></form></dialog>
+<script>
+const $=id=>document.getElementById(id),FF="'Times New Roman',Times,serif",cv=document.createElement('canvas').getContext('2d');
+let S=30,NC=false,GM=1,SVG='';
+const tw=(t,z=S,it=true)=>{cv.font=(it?'italic ':'')+z+'px '+FF;return cv.measureText(t).width};
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const txt=(x,y,t,z,it=true)=>t?`<text x="${x}" y="${y}" font-size="${z}" font-family="${FF}" ${it?'font-style="italic"':''} text-anchor="middle" dominant-baseline="central" fill="#000" stroke="none">${esc(t)}</text>`:'';
+const ln=(a,b,c,d)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`;
+const hd=(x,y,ux,uy)=>{const h=S*.6,w=S*.26,bx=x-ux*h,by=y-uy*h;return`<polygon points="${x},${y} ${bx-uy*w},${by+ux*w} ${bx+uy*w},${by-ux*w}" fill="#000" stroke="none"/>`};
+const sd=(px,py,[x1,y1,x2,y2])=>{const dx=x2-x1,dy=y2-y1,l=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/l));return Math.hypot(px-x1-t*dx,py-y1-t*dy)};
+const rc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none"/>`;
+// ---- títulos (cabeçalhos): !reto  *itálico*  >2 (ocupa 2 colunas)  < (coberta)  ^ (continua a de cima)
+const ptl=s=>{let sp=1;const m=s.match(/\s>(\d+)\s*$/);if(m){sp=+m[1];s=s.slice(0,m.index)}return{t:s.trim(),sp}};
+const tlw=(s,z)=>{const up=s[0]=='!';if(up)s=s.slice(1);return s.includes('*')?s.split('*').reduce((a,p,i)=>a+tw(p,z,i%2==1),0):tw(s,z,!up)};
+function ttl(x,y,s,z){
+ const up=s[0]=='!';if(up)s=s.slice(1);
+ if(!s.includes('*'))return txt(x,y,s,z,!up);
+ const seg=s.split('*'),w=seg.reduce((a,p,i)=>a+tw(p,z,i%2==1),0);
+ return`<text x="${x-w/2}" y="${y}" font-size="${z}" font-family="${FF}" dominant-baseline="central" style="white-space:pre" fill="#000" stroke="none">`+seg.map((p,i)=>p?`<tspan${i%2?' font-style="italic"':''}>${esc(p)}</tspan>`:'').join('')+'</text>';
+}
+// ---- leitura do texto
+function PL(raw){
+ let s=raw.trim(),m,at=0,lab='',anc='';
+ if(m=s.match(/^\^(\d+)\s+/)){at=+m[1];s=s.slice(m[0].length)}
+ if(m=s.match(/^\[([^\]]*)\]\s*/)){const pr=m[1].split(';');lab=pr[0].trim();if(pr[1]!=null)anc=pr[1].trim();s=s.slice(m[0].length)}
+ let br=0;if(m=s.match(/^\{(.*)\}$/)){br=1;s=m[1]}
+ const items=[],conj=[];
+ s.split(/\s-([^-]*)-\s/).forEach((p,i)=>{
+  if(i%2){conj.push(p.trim());return}
+  const tg={src:[],dst:[],id:''};let q;
+  while(q=p.match(/\s+(@@|@|=)(\S+)\s*$/)){if(q[1]=='=')tg.id=q[2];else if(q[1]=='@')tg.src.push(q[2]);else tg.dst.push(q[2]);p=p.slice(0,q.index)}
+  let sh=0,nl=0,t=p.trim();
+  if(t[0]=='~'){nl=1;t=t.slice(1).trim()}
+  if(q=t.match(/^\(\((.*)\)\)$/)){sh=2;t=q[1]}else if(q=t.match(/^\((.*)\)$/)){sh=1;t=q[1]}
+  items.push({t:t.trim(),sh,nl,tg,kids:[]});
+ });
+ return{items,conj,cg:[],kids:[],lab,at,br,anc};
+}
+function att(p,n){
+ if(p.items.length>1){if(n.at&&p.items[n.at-1])p.items[n.at-1].kids.push(n);else p.kids.push(n)}
+ else p.items[0].kids.push(n);
+}
+// ---- medidas e posições
+function kw(a){return a.length?a.reduce((s,k)=>s+W(k),0)+S*.8*GM*(a.length-1):0}
+function W(n){
+ let tot=0;n.cg=[];
+ n.items.forEach((it,i)=>{
+  const t=tw(it.t);
+  if(it.sh==2){it.w=it.h=Math.max(t+S*1.3,S*2.2)}else{it.w=t+(it.sh?S*.9:S*.1);it.h=S*1.35}
+  it.kw=kw(it.kids);it.slot=Math.max(it.w,it.kw);tot+=it.slot;
+  if(i<n.conj.length){const g=n.conj[i]=='|'?S*.9:tw(n.conj[i])+S*1.8*GM;n.cg.push(g);tot+=g}
+ });
+ n.tot=tot;n.gw=kw(n.kids);n.W=Math.max(tot,n.gw);return n.W;
+}
+function PK(a,l,d,ax,src,E,ne,aw,its){
+ for(const k of a){
+  k.py=src.y;k.dy=/\|/.test(k.lab||'')?S*3.8:/[<>]/.test(k.lab||'')?S*3.6:S*2.4;P(k,l,d,E);l+=k.W+S*.8*GM;if(ne)continue;
+  let x0=ax;const an=k.anc;
+  if(an){if(/^i\d+$/.test(an)){if(its&&its[+an.slice(1)-1])x0=its[+an.slice(1)-1].x}else x0=ax+(+an||0)*(aw||0)}
+  if(k.br){const hh=Math.max(...k.items.map(i=>i.h));E.edges.push({s:src,ax:x0,t:{x:k.cx,y:k.items[0].y-hh/2-S*.58,h:0},lab:k.lab})}
+  else k.items.forEach(ki=>{if(!ki.nl)E.edges.push({s:src,ax:x0,t:ki,lab:k.lab})});
+ }
+}
+function P(n,l,d,E){
+ let x=l+(n.W-n.tot)/2;n.cx=l+n.W/2;
+ n.items.forEach((it,i)=>{
+  it.x=x+it.slot/2;it.y=n.py==null?0:n.py+n.dy;E.items.push(it);
+  PK(it.kids,x+(it.slot-it.kw)/2,d+1,it.x,it,E,false,it.w);
+  x+=it.slot;
+  if(i<n.conj.length){E.conj.push({a:it,b:n.items[i+1],t:n.conj[i],br:n.br});x+=n.cg[i]}
+ });
+ if(n.br)E.br.push(n);
+ PK(n.kids,l+(n.W-n.gw)/2,d+1,n.cx,n.items[0],E,NC,n.tot,n.items);
+}
+// ---- um estema (um bloco de texto)
+function cell(lines){
+ const o={},body=[];
+ for(const l of lines){
+  if(!l.trim())continue;
+  const m=l.trim().match(/^#([^\s:]+)\s*:?\s*(.*)$/);
+  if(m)(o[m[1]]=o[m[1]]||[]).push(m[2]);else body.push(l);
+ }
+ const base={o,titles:o.titulo||[],foot:(o.rodape||[''])[0],leg:(o.legenda||[''])[0]};
+ if(o.linhas)return rows(base,body);
+ const R={items:[{kids:[]}],conj:[],kids:[]},st=[{i:-1,n:R}];
+ for(const l of body){
+  const ind=l.match(/^\s*/)[0].replace(/\t/g,'  ').length,n=PL(l);
+  while(st[st.length-1].i>=ind)st.pop();
+  att(st[st.length-1].n,n);st.push({i:ind,n});
+ }
+ NC=!!o['sem-centro'];GM=+((o.espaco||[1])[0])||1;
+ const E={items:[],conj:[],edges:[],br:[]};let x=0;
+ R.items[0].kids.forEach(r=>{W(r);P(r,x,0,E);x+=r.W+S*2.5*GM});
+ if(!E.items.length)return{...base,bw:0,bh:S,minX:0,minY:0,g:''};
+ const sw=Math.max(1.6,S/11);let g='';
+ const SG=E.edges.map(e=>[e.ax,e.s.y+e.s.h/2,e.t.x,e.t.y-e.t.h/2]),LP=[];
+ E.edges.forEach((e,ei)=>{
+  const x1=e.ax,y1=e.s.y+e.s.h/2,x2=e.t.x,y2=e.t.y-e.t.h/2;
+  const l0=e.lab||'',lb=l0.replace(/[<>]/g,''),len=Math.hypot(x2-x1,y2-y1)||1,ux=(x2-x1)/len,uy=(y2-y1)/len;
+  const k=S*.5,A2=l0.includes('>'),A1=l0.includes('<');
+  g+=ln(x1+(A1?ux*k:0),y1+(A1?uy*k:0),x2-(A2?ux*k:0),y2-(A2?uy*k:0));
+  if(A2)g+=hd(x2,y2,ux,uy);if(A1)g+=hd(x1,y1,-ux,-uy);
+  if(lb.includes('|')){
+   const[a1,b1]=lb.split('|'),z=S*.85,mx=(x1+x2)/2,my=(y1+y2)/2;
+   g+=txt(mx-S*.3-tw(a1,z)/2,my,a1,z)+txt(mx+S*.3+tw(b1,z)/2,my,b1,z);
+  }else if(lb){
+   const z=S*.62,w=tw(lb,z),r=Math.max(w/2,S*.3),f=x2-x1<-4?-1:1;let best=null;
+   [.55,.45,.65,.35,.75].forEach((t,ti)=>[f,-f].forEach((sg,si)=>{
+    const nx=sg*uy,ny=-sg*ux,d=S*.2+Math.abs(nx)*w/2+Math.abs(ny)*S*.3,px=x1+(x2-x1)*t+nx*d,py=y1+(y2-y1)*t+ny*d;
+    let c=S;SG.forEach((q,j)=>{if(j!=ei)c=Math.min(c,sd(px,py,q)-r)});
+    LP.forEach(q=>c=Math.min(c,Math.hypot(px-q[0],py-q[1])-r*2));
+    E.items.forEach(it=>{const dx=Math.max(Math.abs(px-it.x)-it.w/2,0),dy=Math.max(Math.abs(py-it.y)-it.h/2,0);c=Math.min(c,Math.hypot(dx,dy)-r)});
+    const sc=c-(ny>0?S*.15:0)-si*S*.05-ti*S*.02;
+    if(!best||sc>best.sc)best={sc,px,py};
+   }));
+   LP.push([best.px,best.py]);g+=txt(best.px,best.py,lb,z)}
+ });
+ E.items.forEach(it=>{
+  if(it.sh==1)g+=`<rect x="${it.x-it.w/2}" y="${it.y-it.h/2}" width="${it.w}" height="${it.h}" rx="${it.h/2}" fill="none"/>`;
+  if(it.sh==2)g+=`<circle cx="${it.x}" cy="${it.y}" r="${it.w/2}" fill="none"/>`;
+  g+=txt(it.x,it.y,it.t,S);
+ });
+ E.conj.forEach(c=>{
+  const y=c.a.y,l=c.a.x+c.a.w/2+S*.15,r=c.b.x-c.b.w/2-S*.15,m=(l+r)/2;
+  if(c.t=='|'){g+=ln(m,y-c.a.h/2-(c.br?S*.3:0),m,y+c.a.h/2);return}
+  if(c.t){const t=tw(c.t)/2+S*.15;g+=ln(l,y,m-t,y)+ln(m+t,y,r,y)+txt(m,y,c.t,S)}else g+=ln(l,y,r,y);
+ });
+ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+ E.items.forEach(it=>{minX=Math.min(minX,it.x-it.w/2);maxX=Math.max(maxX,it.x+it.w/2);minY=Math.min(minY,it.y-it.h/2);maxY=Math.max(maxY,it.y+it.h/2)});
+ E.br.forEach(n=>{
+  const a=n.items[0],b=n.items[n.items.length-1],hh=Math.max(...n.items.map(i=>i.h)),by=a.y-hh/2-S*.3,nn=S*.28,xl=a.x-a.w/2-S*.2,xr=b.x+b.w/2+S*.2,xc=n.cx;
+  g+=`<path d="M${xl} ${by+S*.3}V${by}H${xc-nn}L${xc} ${by-nn}L${xc+nn} ${by}H${xr}V${by+S*.3}"/>`;
+  minX=Math.min(minX,xl);maxX=Math.max(maxX,xr);minY=Math.min(minY,by-nn);
+ });
+ const sr={},ds={},ids={};
+ E.items.forEach(it=>{it.tg.src.forEach(k=>(sr[k]=sr[k]||[]).push(it));it.tg.dst.forEach(k=>(ds[k]=ds[k]||[]).push(it));if(it.tg.id)ids[it.tg.id]=it});
+ const pend={src:[],dst:[]};
+ for(const k in ds)for(const d of ds[k]){
+  if(!sr[k]){pend.dst.push({k,it:d});continue}
+  for(const s of sr[k]){
+   const x1=s.x,y1=s.y+s.h/2,x2=d.x,y2=d.y+d.h/2,cy=Math.max(y1,y2)+Math.min(S*.5+Math.abs(x2-x1)*.22,S*2.2);
+   g+=`<path d="M${x1} ${y1}Q${(x1+x2)/2} ${cy} ${x2} ${y2}" fill="none" stroke-dasharray="${sw*2.6} ${sw*2.2}"/>`;
+   maxY=Math.max(maxY,(y1+y2+2*cy)/4+sw);
+  }
+ }
+ for(const k in sr)if(!ds[k])sr[k].forEach(s=>pend.src.push({k,it:s}));
+ (o.liga||[]).forEach(v=>{const[a,b,f]=v.split(/\s+/),p=ids[a],q=ids[b];if(p&&q)g+=ln(p.x+(+f||0)*p.w,p.y+p.h/2,q.x,q.y-q.h/2)});
+ return{...base,bw:maxX-minX,bh:maxY-minY,minX,minY,g,pend};
+}
+// ---- linhas de texto com setas (#linhas)
+function rows(base,body){
+ const R=body.map(l=>l.split('|').map(c=>c.trim())),nc=Math.max(...R.map(r=>r.length)),cw=Array(nc).fill(0);
+ const isA=c=>/^(->|<-|<->|<=)$/.test(c),sg=c=>c.split('*'),mw=c=>isA(c)?S*2.8:sg(c).reduce((s,p,i)=>s+tw(p,S,i%2==1),0);
+ R.forEach(r=>r.forEach((c,i)=>cw[i]=Math.max(cw[i],mw(c))));
+ const gp=S*.5,rh=S*1.8,d=S*.26,k=S*.15,q=S*.5;let g='';
+ R.forEach((r,ri)=>{
+  const y=rh*ri+rh/2;let x=0;
+  r.forEach((c,i)=>{
+   const L=x+k,Rr=x+cw[i]-k;
+   if(c=='->')g+=ln(L,y,Rr-q,y)+hd(Rr,y,1,0);
+   else if(c=='<-')g+=ln(L+q,y,Rr,y)+hd(L,y,-1,0);
+   else if(c=='<->')g+=ln(L,y-d,Rr-q,y-d)+hd(Rr,y-d,1,0)+ln(L+q,y+d,Rr,y+d)+hd(L,y+d,-1,0);
+   else if(c=='<=')g+=`<path d="M${L} ${y-d}H${Rr}V${y+d}H${L+q}"/>`+hd(L,y+d,-1,0);
+   else if(c)g+=`<text x="${x}" y="${y}" font-size="${S}" font-family="${FF}" dominant-baseline="central" style="white-space:pre" fill="#000" stroke="none">`+sg(c).map((p,j)=>p?`<tspan${j%2?' font-style="italic"':''}>${esc(p)}</tspan>`:'').join('')+'</text>';
+   x+=cw[i]+gp;
+  });
+ });
+ return{...base,bw:cw.reduce((a,b)=>a+b,0)+gp*(nc-1),bh:rh*R.length,minX:0,minY:0,g};
+}
+// ---- imagem completa
+function build(src){
+ const bl=src.split(/^[ \t]*---[ \t]*$/m).map(b=>cell(b.split('\n')));
+ const Pd=S*.8,sw=Math.max(1.6,S/11),rh=S*1.7,NT=Math.max(0,...bl.map(c=>c.titles.length)),T=NT*rh,F=bl.some(c=>c.foot)?S*1.7:0,Lg=bl.some(c=>c.leg)?S*1.7:0;
+ const tab=bl.some(c=>c.o.tabela),each=bl.some(c=>c.o.moldura),outer=tab||(!each&&!bl.some(c=>c.o['sem-quadro'])),gap=tab?0:S*1.6;
+ const E=(c,r)=>ptl(c.titles[r]||'');
+ const xs=[],ws=[];let x=0;
+ bl.forEach(c=>{
+  const w=Math.max(c.bw,...c.titles.map(t=>{const e=ptl(t);return e.t=='<'||e.t=='^'?0:tlw(e.t,S*.85)/e.sp}),tw(c.foot,S*.85,false),tw(c.leg,S*.85,false))+2*Pd;
+  xs.push(x);ws.push(w);x+=w+gap;
+ });
+ const Wt=x-gap,tx=bl.map((c,i)=>xs[i]+(ws[i]-c.bw)/2-c.minX),ty=bl.map(c=>T+Pd-c.minY);
+ const SR={};let cvb=0,cv='';
+ bl.forEach((c,i)=>(c.pend?c.pend.src:[]).forEach(p=>(SR[p.k]=SR[p.k]||[]).push({i,it:p.it})));
+ bl.forEach((c,i)=>(c.pend?c.pend.dst:[]).forEach(p=>(SR[p.k]||[]).forEach(s=>{
+  if(s.i==i)return;
+  const x1=s.it.x+tx[s.i],y1=s.it.y+s.it.h/2+ty[s.i],x2=p.it.x+tx[i],y2=p.it.y+p.it.h/2+ty[i],cy=Math.max(y1,y2)+Math.min(S*.5+Math.abs(x2-x1)*.22,S*1.4);
+  cv+=`<path d="M${x1} ${y1}Q${(x1+x2)/2} ${cy} ${x2} ${y2}" fill="none" stroke-dasharray="${sw*2.6} ${sw*2.2}"/>`;
+  cvb=Math.max(cvb,(y1+y2+2*cy)/4+sw);
+ })));
+ const H=Math.max(Math.max(...bl.map(c=>c.bh))+2*Pd+T+F,cvb+Pd*.6);
+ let out='';
+ bl.forEach((c,i)=>{
+  out+=`<g transform="translate(${tx[i]},${ty[i]})">${c.g}</g>`;
+  out+=txt(xs[i]+ws[i]/2,H-F/2,c.foot,S*.85,false)+txt(xs[i]+ws[i]/2,H+Lg/2,c.leg,S*.85,false);
+  if(F&&(c.o.moldura||tab||outer))out+=ln(xs[i],H-F,xs[i]+ws[i],H-F);
+  if(c.o.moldura)out+=rc(xs[i],0,ws[i],H);
+ });
+ for(let r=0;r<NT;r++)for(let i=0;i<bl.length;i++){
+  const e=E(bl[i],r);if(!e.t||e.t=='<'||e.t=='^')continue;
+  let rs=1;while(r+rs<NT&&E(bl[i],r+rs).t=='^')rs++;
+  const j=Math.min(i+e.sp,bl.length)-1;
+  out+=ttl((xs[i]+xs[j]+ws[j])/2,(r+rs/2)*rh,e.t,S*.85);
+ }
+ if(tab){
+  for(let i=1;i<bl.length;i++){for(let r=0;r<NT;r++)if(E(bl[i],r).t!='<')out+=ln(xs[i],r*rh,xs[i],(r+1)*rh);out+=ln(xs[i],T,xs[i],H)}
+  for(let r=1;r<=NT;r++)for(let i=0;i<bl.length;i++)if(r==NT||E(bl[i],r).t!='^')out+=ln(xs[i],r*rh,xs[i]+ws[i],r*rh);
+ }
+ out+=cv;
+ const M=sw*2;
+ if(outer)out+=rc(0,0,Wt,H);
+ return`<svg xmlns="http://www.w3.org/2000/svg" width="${Wt+2*M}" height="${H+Lg+2*M}" viewBox="${-M} ${-M} ${Wt+2*M} ${H+Lg+2*M}"><g stroke="#000" stroke-width="${sw}" stroke-linecap="round" fill="none">${out}</g></svg>`;
+}
+// ---- exemplos
+const EX={
+"Estema simples":"chante\n  Alfred",
+"Números (actantes)":"donne\n  [1] Alfred\n  [2] le livre\n  [3] à Charles",
+"Cápsulas":"(chante)\n  (Alfred)\n(fait que ?)\n  (Alfred)",
+"Círculo":"((il pleut))",
+"Com rodapé":"#rodape: Estema\n(chante)\n  (ami)\n    (votre)",
+"Junção":"chantent\n  [1] Alfred -et- Bernard",
+"Junção com filhos (^)":"aime\n  [1] Yvonne\n  [2] père -et- mère\n    ^1 son\n    ^2 sa",
+"Anáfora (tracejado)":"apprennent\n  [1] Alfred @a -et- Bernard @a\n  [2] leçon\n    leur @@a",
+"Tabela":"#tabela\n#titulo: Alfred chante.\nchante\n  [1] Alfred\n---\n#titulo: Alfred frappe Bernard.\nfrappe\n  [1] Alfred\n  [2] Bernard\n---\n#titulo: Alfred donne le livre à Charles.\ndonne\n  [1] Alfred\n  [2] le livre\n  [3] à Charles",
+"Caixas separadas":"#moldura\ntombe\n  [1] Alfred\n---\n#moldura\nfrappe\n  [1] Alfred\n  [2] Bernard",
+"Ligações cruzadas":"#sem-centro\naiment =v1 -et- honorent =v2\n  enfants =e\n  parents =p\n#liga v1 p\n#liga v2 e",
+"Setas (francês/inglês)":"#moldura\n#legenda: francês\nchien\n  [>] blanc\n---\n#moldura\n#legenda: inglês\ndog\n  [<] white",
+"Colchete (transferência)":"(était descendu)\n  tout\n    {femmes -et- moine -et- vieillards}",
+"Colchete com divisória":"voici\n  [2] O\n    {le -|- mien}",
+"Linhas com setas":"#linhas\nVerbo ativo: | O | -> | O *: Alfred frappe Bernard.*\nVerbo passivo: | O | <- | O *: Bernard est frappé par Alfred.*\nVerbo reflexivo: | O | <= | O *: Alfred se frappe.*\nVerbo recíproco: | O | <-> | O *: Alfred et Bernard se frappent (l'un l'autre).*",
+"Cabeçalho em duas camadas":"#tabela\n#titulo: !ESTEMA LINEAR\n#titulo: ^\n#titulo: Alfred chante.\nchante\n  Alfred\n---\n#titulo: !ESTEMA FORQUILHADO >2\n#titulo: !Bifurcação\n#titulo: Alfred frappe Bernard.\nfrappe\n  Alfred\n  Bernard\n---\n#titulo: <\n#titulo: !Trifurcação\n#titulo: Alfred donne le livre à Charles.\ndonne\n  Alfred\n  le livre\n  à Charles",
+"Tracejado entre colunas":"#tabela\n#titulo: !Inglês: *I miss you.*\nmiss\n  [1] I @a\n  [2] you\n---\n#titulo: !Francês: *Vous me manquez.*\nmanquez\n  [1] vous\n  [3] me @@a",
+"Palavra sem ligação (~)":"écrivait\n  Atticus -- ~orateur\n    ^2 remarquable\n  médiocrement",
+"Traços cruzados (saída)":"(marchait)\n  [;-.37] le fils\n  [;.35] la mère\n  [;-.36] vite\n  [;.36] lentement",
+"Texto dos dois lados":"(chante)\n  [ne|pas] (Alfred)",
+"Espaço entre palavras":"#espaco: 2\nchat\n  votre\n  joli\n  petit\n  blanc"
+};
+const closeDD=()=>document.querySelectorAll('.ddl').forEach(l=>l.hidden=true);
+function dd(id,opts,pick,sel){
+ const el=$(id),b=el.querySelector('.ddb'),l=el.querySelector('.ddl');
+ l.innerHTML=opts.map(([v,t])=>`<li data-v="${esc(String(v))}"${v==sel?' class="sel"':''}>${esc(t)}</li>`).join('');
+ b.onclick=e=>{e.stopPropagation();const o=l.hidden;closeDD();l.hidden=!o};
+ l.onclick=e=>{const li=e.target.closest('li');if(!li)return;l.hidden=true;pick(li.dataset.v,li.textContent,l,li)};
+}
+document.addEventListener('click',closeDD);
+document.addEventListener('keydown',e=>{if(e.key=='Escape')closeDD()});
+dd('ex',Object.keys(EX).map(k=>[k,k]),v=>{$('ed').value=EX[v];draw()});
+dd('dpi',[[300,'300 dpi'],[600,'600 dpi'],[1200,'1200 dpi']],(v,t,l,li)=>{$('dpi').dataset.v=v;$('dpi').querySelector('.ddb').textContent=t;l.querySelectorAll('li').forEach(x=>x.classList.toggle('sel',x==li))},600);
+// ---- interface
+function draw(){
+ S=30;
+ try{SVG=build($('ed').value);$('pv').innerHTML=SVG;$('er').textContent=''}catch(e){$('er').textContent='Não consegui desenhar: '+e.message}
+ try{localStorage.setItem('estemas',$('ed').value)}catch(e){}
+}
+function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const CT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=a=>{let c=0xffffffff;for(const x of a)c=CT[(c^x)&255]^(c>>>8);return(c^0xffffffff)>>>0};
+async function setDpi(blob,dpi){
+ const b=new Uint8Array(await blob.arrayBuffer()),m=Math.round(dpi/0.0254),d=new Uint8Array(21),v=new DataView(d.buffer);
+ v.setUint32(0,9);d.set([112,72,89,115],4);v.setUint32(8,m);v.setUint32(12,m);d[16]=1;v.setUint32(17,crc(d.subarray(4,17)));
+ const o=new Uint8Array(b.length+21);o.set(b.subarray(0,33));o.set(d,33);o.set(b.subarray(33),54);
+ return new Blob([o],{type:'image/png'});
+}
+function dims(){const m=SVG.match(/viewBox="\S+ \S+ (\S+) (\S+)"/),k=(+$('pt').value||11)/S;return{w:+m[1]*k,h:+m[2]*k}}
+function sized(w,h,u){return SVG.replace(/ width="[^"]*" height="[^"]*"/,` width="${w}${u}" height="${h}${u}"`)}
+function png(cb){
+ const{w,h}=dims(),dpi=+$('dpi').dataset.v||600,pw=Math.round(w/72*dpi),ph=Math.round(h/72*dpi),im=new Image();
+ im.onload=()=>{const c=document.createElement('canvas');c.width=pw;c.height=ph;c.getContext('2d').drawImage(im,0,0,pw,ph);
+  c.toBlob(async x=>cb(await setDpi(x,dpi)),'image/png')};
+ im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(sized(pw,ph,''));
+}
+$('ed').addEventListener('input',draw);
+
+// ---- EPS (PostScript vetorial, fundo transparente, fontes Times padrão)
+function eps(){
+ const n=v=>(+v).toFixed(3).replace(/\.?0+$/,''),num=t=>(t||'').trim().split(/[\s,]+/).filter(Boolean).map(Number);
+ const pe=t=>[...t].map(c=>{const q=c.charCodeAt(0),cc={0x153:156,0x152:140,0x2019:39,0x2018:96,0x2013:150,0x2014:151}[q]||q;
+  if(cc>255)return'?';const ch=String.fromCharCode(cc);return(cc<32||cc>126||'\\()'.includes(ch))?'\\'+cc.toString(8).padStart(3,'0'):ch}).join('');
+ const svg=new DOMParser().parseFromString(SVG,'image/svg+xml').documentElement,[vx,vy,vw,vh]=svg.getAttribute('viewBox').split(/\s+/).map(Number),{w,h}=dims(),k=w/vw;
+ let o=`%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 ${Math.ceil(w)} ${Math.ceil(h)}\n%%HiResBoundingBox: 0 0 ${n(w)} ${n(h)}\n%%Creator: Gerador de figuras\n%%EndComments\n`
+ +`/Enc ISOLatin1Encoding 256 array copy def Enc 156 /oe put Enc 140 /OE put Enc 150 /endash put Enc 151 /emdash put\n`
+ +`/RE{findfont dup length dict begin{1 index/FID ne{def}{pop pop}ifelse}forall/Encoding Enc def currentdict end definefont pop}bind def\n/TI /Times-Italic RE /TR /Times-Roman RE\n`
+ +`1 setlinecap 1 setlinejoin 0 setgray\n[${n(k)} 0 0 ${n(-k)} ${n(-vx*k)} ${n((vy+vh)*k)}] concat\n`;
+ const walk=el=>{for(const c of el.children){
+  const t=c.tagName,a=x=>c.getAttribute(x);
+  if(t=='g'){
+   const m=(a('transform')||'').match(/translate\(([^,)\s]+)[,\s]+([^)\s]+)\)/);
+   if(a('stroke-width'))o+=`${n(a('stroke-width'))} setlinewidth\n`;
+   o+='gsave\n';if(m)o+=`${n(m[1])} ${n(m[2])} translate\n`;walk(c);o+='grestore\n';
+  }else if(t=='line')o+=`newpath ${n(a('x1'))} ${n(a('y1'))} moveto ${n(a('x2'))} ${n(a('y2'))} lineto stroke\n`;
+  else if(t=='rect'){
+   const x=+a('x'),y=+a('y'),W=+a('width'),H=+a('height'),r=+(a('rx')||0);
+   if(!r)o+=`${n(x)} ${n(y)} ${n(W)} ${n(H)} rectstroke\n`;
+   else o+=`newpath ${n(x+r)} ${n(y)} moveto ${n(x+W)} ${n(y)} ${n(x+W)} ${n(y+H)} ${n(r)} arcto 4{pop}repeat ${n(x+W)} ${n(y+H)} ${n(x)} ${n(y+H)} ${n(r)} arcto 4{pop}repeat ${n(x)} ${n(y+H)} ${n(x)} ${n(y)} ${n(r)} arcto 4{pop}repeat ${n(x)} ${n(y)} ${n(x+W)} ${n(y)} ${n(r)} arcto 4{pop}repeat closepath stroke\n`;
+  }else if(t=='circle')o+=`newpath ${n(a('cx'))} ${n(a('cy'))} ${n(a('r'))} 0 360 arc stroke\n`;
+  else if(t=='path'){
+   let cx=0,cy=0,q='newpath\n';const da=a('stroke-dasharray');
+   for(const m of a('d').matchAll(/([MHVLQ])([^MHVLQ]*)/g)){
+    const v=num(m[2]),c0=m[1];
+    if(c0=='M'){cx=v[0];cy=v[1];q+=`${n(cx)} ${n(cy)} moveto\n`}
+    else if(c0=='H'){cx=v[0];q+=`${n(cx)} ${n(cy)} lineto\n`}
+    else if(c0=='V'){cy=v[0];q+=`${n(cx)} ${n(cy)} lineto\n`}
+    else if(c0=='L'){cx=v[0];cy=v[1];q+=`${n(cx)} ${n(cy)} lineto\n`}
+    else{const[qx,qy,x,y]=v;q+=`${n(cx+2/3*(qx-cx))} ${n(cy+2/3*(qy-cy))} ${n(x+2/3*(qx-x))} ${n(y+2/3*(qy-y))} ${n(x)} ${n(y)} curveto\n`;cx=x;cy=y}
+   }
+   o+=(da?`[${num(da).map(n).join(' ')}] 0 setdash\n`:'')+q+'stroke\n'+(da?'[] 0 setdash\n':'');
+  }else if(t=='polygon'){
+   const pts=a('points').trim().split(/\s+/).map(p=>p.split(',').map(Number));
+   o+='newpath '+pts.map(([x,y],i)=>`${n(x)} ${n(y)} ${i?'lineto':'moveto'}`).join(' ')+' closepath fill\n';
+  }else if(t=='text'){
+   const z=+a('font-size'),mid=a('text-anchor')=='middle',ts=[...c.querySelectorAll('tspan')],
+    segs=ts.length?ts.map(e=>[e.textContent,e.getAttribute('font-style')=='italic']):[[c.textContent,a('font-style')=='italic']];
+   o+=`gsave ${n(a('x'))} ${n(a('y'))} translate 1 -1 scale 0 ${n(-.34*z)} moveto\n`;
+   segs.forEach(([tx,it],i)=>{o+=`/${it?'TI':'TR'} findfont ${n(z)} scalefont setfont (${pe(tx)}) `+(mid&&!i?'dup stringwidth pop 2 div neg 0 rmoveto ':'')+'show\n'});
+   o+='grestore\n';
+  }
+ }};
+ walk(svg);
+ return o+'showpage\n%%EOF\n';
+}
+$('be').onclick=()=>saveAs(new Blob([eps()],{type:'application/postscript'}),'estema.eps','Imagem EPS','application/postscript','.eps');
+$('bp').onclick=()=>png(b=>saveAs(b,'estema.png','Imagem PNG','image/png','.png'));
+$('bs').onclick=()=>saveAs(new Blob([(()=>{const d=dims();return sized(d.w.toFixed(2),d.h.toFixed(2),'pt')})()],{type:'image/svg+xml'}),'estema.svg','Imagem SVG','image/svg+xml','.svg');
+$('bc').onclick=()=>png(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})])}catch(e){alert('Seu navegador não permitiu copiar; use "Baixar PNG".')}});
+function askName(name){return new Promise(res=>{
+ const d=$('nm'),i=$('nmi');i.value=name;d.returnValue='';
+ d.onclose=()=>res(d.returnValue=='ok'&&i.value.trim()?i.value.trim():null);
+ d.showModal();i.focus();i.setSelectionRange(0,name.lastIndexOf('.'));
+})}
+async function saveAs(blob,name,desc,mime,ext){
+ if(window.showSaveFilePicker){
+  try{const h=await showSaveFilePicker({suggestedName:name,types:[{description:desc,accept:{[mime]:[ext]}}]});const w=await h.createWritable();await w.write(blob);await w.close();return}
+  catch(e){if(e.name=='AbortError')return}
+ }
+ const n=await askName(name);
+ if(n)dl(blob,n.toLowerCase().endsWith(ext)?n:n+ext);
+}
+$('bt').onclick=()=>saveAs(new Blob([$('ed').value],{type:'text/plain'}),'estema.txt','Texto do estema','text/plain','.txt');
+$('bo').onclick=()=>$('fi').click();
+$('fi').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>{$('ed').value=t;draw()});e.target.value=''};
+try{$('ed').value=localStorage.getItem('estemas')||EX['Tabela']}catch(e){$('ed').value=EX['Tabela']}
+const HX=[],HL=[
+["Estrutura",[
+["(2 espaços de recuo)","A linha recuada depende da linha de cima: fica logo abaixo, ligada a ela. Linhas sem recuo viram estemas separados, lado a lado.","chante\n  Alfred"],
+["---","Sozinho numa linha: começa outra figura ao lado (outra coluna ou outra caixa).","tombe\n  [1] Alfred\n---\nfrappe\n  [1] Alfred\n  [2] Bernard"]]],
+["Formas das palavras",[
+["(texto)","Palavra dentro de uma cápsula.","(chante)\n  (Alfred)"],
+["((texto))","Palavra dentro de um círculo.","((oui))"]]],
+["Ligações",[
+["[1] texto","Número escrito na ligação que chega a essa palavra.","donne\n  [1] Alfred\n  [2] le livre\n  [3] à Charles"],
+["[>] texto","Seta na ligação, apontando para a palavra de baixo. [<] aponta para a de cima; [<>] as duas. Combina com número: [1>].","chien\n  [>] blanc"]]],
+["Junção (coordenação)",[
+["a -et- b","Duas palavras coordenadas, unidas por linha horizontal com a palavra do meio (qualquer texto entre os hífens). Use -- sem palavra. Os filhos ficam ligados a cada uma.","chantent\n  [1] Alfred -et- Bernard"],
+["^2 texto","Dentro de uma junção: pendura a palavra no 2º item (^1 no 1º), em vez de no centro.","aime\n  [1] Yvonne\n  [2] père -et- mère\n    ^1 son\n    ^2 sa"]]],
+["Anáfora e ligações extras",[
+["x @a   y @@a","Tracejado curvo ligando toda palavra marcada com @a à palavra marcada com @@a (o nome a, b… é livre). Funciona também entre colunas de uma tabela.","apprennent\n  [1] Alfred @a -et- Bernard @a\n  [2] leçon\n    leur @@a"],
+["texto =id","Dá um nome à palavra. Com a linha #liga id1 id2, desenha uma linha contínua entre as duas (ligações cruzadas). Um terceiro número, como #liga id1 id2 -.25, move a saída do traço no id1 (-0,5 extremo esquerdo, 0,5 extremo direito).","#sem-centro\naiment =v1 -et- honorent =v2\n  enfants =e\n  parents =p\n#liga v1 p\n#liga v2 e"]]],
+["Palavras sem ligação, saídas e textos ao lado do traço",[
+["~texto","A palavra fica na posição de filho, mas sem o traço ligando ao pai. Serve para palavras soltas ou para ligar só alguns itens de uma junção.","écrivait\n  Atticus -- ~orateur\n    ^2 remarquable\n  médiocrement"],
+["[1;-.3] texto","Depois do ponto e vírgula vem o ponto de saída do traço no pai: de -0,5 (extremo esquerdo) a 0,5 (extremo direito). Para filhos de uma junção, i1 e i2 são o centro do 1º e do 2º item. Serve para cruzar traços.","(marchait)\n  [;-.37] le fils\n  [;.35] la mère\n  [;-.36] vite\n  [;.36] lentement"],
+["[ne|pas] texto","Texto à esquerda e à direita do traço (a barra | separa os dois). O traço fica mais comprido.","(chante)\n  [ne|pas] (Alfred)"]]],
+["Transferência (colchete)",[
+["{ ... }","Linha inteira entre chaves: desenha o colchete em volta das palavras. A ligação de cima chega ao bico do colchete.","(était descendu)\n  tout\n    {femmes -et- moine -et- vieillards}"],
+["-|-","Dentro das chaves: divisória vertical entre duas palavras.","voici\n  [2] O\n    {le -|- mien}"]]],
+["Opções (linhas que começam com #, dentro de um estema)",[
+["#titulo: texto","Texto acima do estema (letra inclinada). Pode repetir a linha: cada uma vira uma fileira do cabeçalho. !texto = letra reta; texto com *itálico* = mistura; no fim, >2 = ocupa 2 colunas; < = coberta pela célula à esquerda; ^ = continua a célula de cima.","#tabela\n#titulo: Alfred chante.\nchante\n  [1] Alfred"],
+["#rodape: texto","Texto abaixo, dentro da caixa, separado por um traço (ex.: Estema).","#rodape: Estema\n(chante)\n  (ami)"],
+["#legenda: texto","Texto abaixo, fora da caixa (ex.: francês, inglês).","#moldura\n#legenda: francês\nchien\n  [>] blanc"],
+["#moldura","Caixa só em volta desse estema (sem ela, há uma caixa externa em volta de tudo).","#moldura\ntombe\n  [1] Alfred\n---\n#moldura\nfrappe\n  [1] Alfred\n  [2] Bernard"],
+["#tabela","Os estemas separados por --- viram colunas de uma tabela; #titulo vira o cabeçalho. Basta escrever em um deles.","#tabela\n#titulo: Alfred chante.\nchante\n  [1] Alfred\n---\n#titulo: Alfred frappe Bernard.\nfrappe\n  [1] Alfred\n  [2] Bernard"],
+["#sem-quadro","Tira a caixa externa da figura.","#sem-quadro\nchante\n  Alfred"],
+["#espaco: 2","Multiplica o espaço horizontal entre palavras vizinhas só nesta figura (1 = padrão; 1.5 ou 2 afastam; 0.8 aproxima).","#espaco: 2\nchat\n  votre\n  joli\n  petit\n  blanc"],
+["#sem-centro","Numa junção de cima, não liga o centro às palavras de baixo (use com #liga).","#sem-centro\naiment =v1 -et- honorent =v2\n  enfants =e\n  parents =p\n#liga v1 p\n#liga v2 e"]]],
+["Linhas de texto com setas",[
+["#linhas","Cada linha vira uma fileira; as colunas são separadas por |. Dentro delas: -> <- <-> (dupla, recíproca) <= (reflexiva) desenham setas; *texto* fica em itálico.","#linhas\nVerbo ativo: | O | -> | O *: Alfred frappe Bernard.*\nVerbo passivo: | O | <- | O *: Bernard est frappé par Alfred.*\nVerbo reflexivo: | O | <= | O *: Alfred se frappe.*\nVerbo recíproco: | O | <-> | O *: Alfred et Bernard se frappent (l'un l'autre).*"]]]
+];
+$('help').innerHTML='<p>Escreva o estema em texto na aba Editor; a figura aparece ao lado e se refaz a cada letra digitada. Abaixo, o que cada símbolo faz. O botão carrega o exemplo no editor (isso substitui o texto atual — salve antes com "Salvar texto" se precisar). Os botões do topo: <b>Fonte</b> é o tamanho em pontos que as letras terão impressas (PNG e SVG já saem com esse tamanho físico; a prévia na tela não muda); <b>PNG</b> escolhe a resolução (600 dpi serve para impressão); as imagens saem com fundo transparente; <b>PNG/SVG/EPS/Copiar</b> exportam a figura; <b>Salvar/Abrir texto</b> guardam e recuperam o texto de uma figura.</p>'+HL.map(([t,rs])=>`<h3>${esc(t)}</h3><table>`+rs.map(([y,d,x])=>{HX.push(x);return`<tr><td><code>${esc(y)}</code></td><td>${esc(d)}</td><td><pre>${esc(x)}</pre><button class="btn" data-i="${HX.length-1}">Testar no editor</button></td></tr>`}).join('')+'</table>').join('');
+function tab(h){document.body.classList.toggle('h',!!h);$('t1').className=h?'':'on';$('t2').className=h?'on':''}
+$('t1').onclick=()=>tab(0);$('t2').onclick=()=>tab(1);
+$('help').onclick=e=>{const i=e.target.dataset.i;if(i!=null){$('ed').value=HX[i];tab(0);draw()}};
+draw();
+</script></body></html>
